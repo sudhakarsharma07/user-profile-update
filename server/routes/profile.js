@@ -1,4 +1,3 @@
-// server/routes/profile.js
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const multer = require('multer');
@@ -7,7 +6,7 @@ const fs = require('fs');
 const User = require('../models/User');
 const router = express.Router();
 
-// Multer configuration for file upload
+// Multer configuration
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadPath = path.join(__dirname, '../uploads');
@@ -35,12 +34,11 @@ const upload = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: 2 * 1024 * 1024 // 2MB limit
+    fileSize: 2 * 1024 * 1024 // 2MB
   }
 });
 
-// Create or update user profile
-
+// POST /api/profile/update
 router.post('/update', upload.single('profilePhoto'), async (req, res) => {
   try {
     const {
@@ -60,24 +58,29 @@ router.post('/update', upload.single('profilePhoto'), async (req, res) => {
       newsletter
     } = req.body;
 
+    if (!username) {
+      return res.status(400).json({ error: 'Username is required.' });
+    }
+
     const existingUser = await User.findOne({ username });
-    
     let hashedPassword;
+
+    // If new password provided, validate and hash
     if (newPassword) {
       const passwordRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/;
       if (!passwordRegex.test(newPassword)) {
-        return res.status(400).json({ 
-          error: 'Password must be at least 8 characters with 1 number and 1 special character' 
+        return res.status(400).json({
+          error: 'Password must be at least 8 characters with 1 number and 1 special character'
         });
       }
-      
+
       if (existingUser && currentPassword) {
         const isMatch = await bcrypt.compare(currentPassword, existingUser.password);
         if (!isMatch) {
           return res.status(400).json({ error: 'Current password is incorrect' });
         }
       }
-      
+
       hashedPassword = await bcrypt.hash(newPassword, 10);
     }
 
@@ -96,28 +99,18 @@ router.post('/update', upload.single('profilePhoto'), async (req, res) => {
         newsletter: newsletter === 'true'
       };
 
-      if (gender === 'Other') {
-        updateData.customGender = customGender;
-      }
+      if (gender === 'Other') updateData.customGender = customGender;
+      if (profession === 'Entrepreneur') updateData.companyName = companyName;
+      if (hashedPassword) updateData.password = hashedPassword;
+      if (profilePhotoPath) updateData.profilePhoto = profilePhotoPath;
 
-      if (profession === 'Entrepreneur') {
-        updateData.companyName = companyName;
-      }
-
-      if (hashedPassword) {
-        updateData.password = hashedPassword;
-      }
-
-      if (profilePhotoPath) {
-        updateData.profilePhoto = profilePhotoPath;
-      }
-
-      await User.findByIdAndUpdate(existingUser._id, updateData);
-      res.json({ message: 'Profile updated successfully' });
+      await User.findByIdAndUpdate(existingUser._id, updateData, { new: true });
+      return res.json({ message: 'Profile updated successfully' });
     } else {
-      if (!hashedPassword || !profilePhotoPath) {
-        return res.status(400).json({ 
-          error: 'Password and profile photo are required for new users' 
+      // Validate required fields for new user
+      if (!newPassword || !profilePhotoPath) {
+        return res.status(400).json({
+          error: 'Password and profile photo are required for new users'
         });
       }
 
@@ -136,21 +129,17 @@ router.post('/update', upload.single('profilePhoto'), async (req, res) => {
         newsletter: newsletter === 'true'
       };
 
-      if (gender === 'Other') {
-        userData.customGender = customGender;
-      }
+      if (gender === 'Other') userData.customGender = customGender;
+      if (profession === 'Entrepreneur') userData.companyName = companyName;
 
-      if (profession === 'Entrepreneur') {
-        userData.companyName = companyName;
-      }
+      const newUser = new User(userData);
+      await newUser.save();
 
-      const user = new User(userData);
-      await user.save();
-      res.json({ message: 'Profile created successfully' });
+      return res.json({ message: 'Profile created successfully' });
     }
   } catch (error) {
-    console.error('Profile update error:', error);
-    res.status(500).json({ error: 'Server error' });
+    console.error('🔥 Profile update error:', error);
+    res.status(500).json({ error: 'Server error occurred. Please try again.' });
   }
 });
 
