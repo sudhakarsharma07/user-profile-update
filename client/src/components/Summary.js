@@ -12,6 +12,13 @@ const Summary = ({ formData, prevStep, handleSubmit, isSubmitting }) => {
           <strong>Username:</strong> {formData.username}
         </div>
         <div className="summary-item">
+          <strong>Gender:</strong>{" "}
+          {formData.gender === "Other" ? formData.customGender : formData.gender}
+        </div>
+        <div className="summary-item">
+          <strong>Date of Birth:</strong> {formData.dateOfBirth}
+        </div>
+        <div className="summary-item">
           <strong>Profile Photo:</strong>{" "}
           {formData.profilePhoto ? "Uploaded" : "Not uploaded"}
         </div>
@@ -33,30 +40,6 @@ const Summary = ({ formData, prevStep, handleSubmit, isSubmitting }) => {
         )}
         <div className="summary-item">
           <strong>Address:</strong> {formData.addressLine1}
-        </div>
-      </div>
-
-      <div className="summary-section">
-        <h3>Personal Information</h3>
-        <div className="summary-item">
-          <strong>Username:</strong> {formData.username}
-        </div>
-        <div className="summary-item">
-          <strong>Gender:</strong>{" "}
-          {formData.gender === "Other"
-            ? formData.customGender
-            : formData.gender}
-        </div>
-        <div className="summary-item">
-          <strong>Date of Birth:</strong> {formData.dateOfBirth}
-        </div>
-        <div className="summary-item">
-          <strong>Profile Photo:</strong>{" "}
-          {formData.profilePhoto ? "Uploaded" : "Not uploaded"}
-        </div>
-        <div className="summary-item">
-          <strong>Password:</strong>{" "}
-          {formData.newPassword ? "Will be updated" : "No change"}
         </div>
       </div>
 
