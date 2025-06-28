@@ -5,7 +5,7 @@ const cors = require('cors');
 const path = require('path');
 const dotenv = require('dotenv');
 
-// Load environment variables
+// Load environment variables from .env file
 dotenv.config();
 
 const app = express();
@@ -24,7 +24,10 @@ app.use('/api/location', require('./routes/location'));
 const mongoURI = process.env.MONGO_URI || 'mongodb://localhost:27017/userprofile';
 
 mongoose
-  .connect(mongoURI)
+  .connect(mongoURI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  })
   .then(() => console.log('✅ MongoDB connected'))
   .catch((err) => console.error('❌ MongoDB connection error:', err.message));
 
