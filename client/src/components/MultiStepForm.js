@@ -57,7 +57,7 @@ const MultiStepForm = () => {
 
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/profile/update`,
+        `${process.env.REACT_APP_API_URL || 'https://user-profile-update.onrender.com'}/api/profile/update`,
         {
           method: 'POST',
           body: formDataToSend

@@ -6,7 +6,7 @@ const Step3Preferences = ({ formData, updateFormData, errors, updateErrors, next
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
 
-  const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+  const API_BASE = process.env.REACT_APP_API_URL || 'https://user-profile-update.onrender.com';
 
   useEffect(() => {
     fetchCountries();
